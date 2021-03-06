@@ -1,0 +1,136 @@
+[FD.S3030PKG_UEFI]
+BaseAddress   = 0xd0000000|gArmTokenSpaceGuid.PcdFdBaseAddress  # The base address of the Firmware in NOR Flash.
+Size          = 0x00200000|gArmTokenSpaceGuid.PcdFdSize         # The size in bytes of the FLASH Device
+ErasePolarity = 1
+
+# This one is tricky, it must be: BlockSize * NumBlocks = Size
+BlockSize     = 0x00001000
+NumBlocks     = 0x200
+
+################################################################################
+#
+# Following are lists of FD Region layout which correspond to the locations of different
+# images within the flash device.
+#
+# Regions must be defined in ascending order and may not overlap.
+#
+# A Layout Region start with a eight digit hex offset (leading "0x" required) followed by
+# the pipe "|" character, followed by the size of the region, also in hex with the leading
+# "0x" characters. Like:
+# Offset|Size
+# PcdOffsetCName|PcdSizeCName
+# RegionType <FV, DATA, or FILE>
+#
+################################################################################
+
+# from ArmVirtPkg/ArmVirtQemuKernel.fdf
+#
+# Implement the Linux kernel header layout so that the loader will identify
+# it as something bootable, and execute it with a FDT pointer in x0 or r2.
+#
+0x00000000|0x00008000
+DATA = {
+  0x01, 0x00, 0x00, 0x10,                         # code0: adr x1, .
+  0xff, 0x1f, 0x00, 0x14,                         # code1: b 0x8000
+  0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, # text_offset: 512 KB
+  0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, # image_size: 2 MB
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # flags
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # res2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # res3
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, # res4
+  0x41, 0x52, 0x4d, 0x64,                         # magic: "ARM\x64"
+  0x00, 0x00, 0x00, 0x00                          # res5
+}
+
+0x00008000|0x001f8000
+gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
+FV = FVMAIN_COMPACT
+
+
+################################################################################
+#
+# FV Section
+#
+# [FV] section is used to define what components or modules are placed within a flash
+# device file.  This section also defines order the components and modules are positioned
+# within the image.  The [FV] section consists of define statements, set statements and
+# module statements.
+#
+################################################################################
+
+[FV.FvMain]
+BlockSize          = 0x40
+NumBlocks          = 0         # This FV gets compressed so make it just big enough
+FvAlignment        = 8         # FV alignment and FV attributes setting.
+ERASE_POLARITY     = 1
+MEMORY_MAPPED      = TRUE
+STICKY_WRITE       = TRUE
+LOCK_CAP           = TRUE
+LOCK_STATUS        = TRUE
+WRITE_DISABLED_CAP = TRUE
+WRITE_ENABLED_CAP  = TRUE
+WRITE_STATUS       = TRUE
+WRITE_LOCK_CAP     = TRUE
+WRITE_LOCK_STATUS  = TRUE
+READ_DISABLED_CAP  = TRUE
+READ_ENABLED_CAP   = TRUE
+READ_STATUS        = TRUE
+READ_LOCK_CAP      = TRUE
+READ_LOCK_STATUS   = TRUE
+
+ APRIORI DXE {
+    INF MdePkg\Library\BasePrintLib\BasePrintLib.inf
+	INF MdePkg\Library\BasePeCoffLib\BasePeCoffLib.inf
+	INF MdePkg\Library\BaseUefiDecompressLib\BaseUefiDecompressLib.inf
+	INF EmbeddedPkg\Library\PrePiLib\PrePiLib.inf
+	INF MdePkg\Library\BaseMemoryLib\BaseMemoryLib.inf
+	INF MdeModulePkg\Library\PeiPerformanceLib\PeiPerformanceLib.inf
+	INF MdePkg\Library\BaseIoLibIntrinsic\IoLibArm.inf
+	INF ArmPkg\Library\ArmLib\ArmV7\ArmV7Mmu.inf
+	INF MdePkg\Library\BaseLib\SwitchStack.inf
+	INF MdePkg\Library\BaseLib\RShiftU64.inf
+	INF MdePkg\Library\BaseLib\DivU64x32Remainder.inf
+	INF MdePkg\Library\BaseLib\String.inf
+	INF MdePkg\Library\BaseLib\Arm\Unaligned.inf
+	INF EmbeddedPkg\Library\PrePiExtractGuidedSectionLib\PrePiExtractGuidedSectionLib.inf
+	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\LzmaDecompress.inf
+	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\GuidedSectionExtraction.inf
+	INF EmbeddedPkg\Library\PrePiMemoryAllocationLib\MemoryAllocationLib.inf
+
+    FILE APPLICATION = FAB3CBF8-C26D-42CD-B265-86D8E231C9B1 {
+      SECTION PE32 = S3030Pkg/Binary/NokiaFlashApp.efi
+      SECTION UI = "NokiaFlashApp"
+  }
+
+    FILE APPLICATION = F40BEFE6-3BDF-4FEB-9A5B-2535BB00854E {
+      SECTION PE32 = S3030Pkg/Binary/NokiaPhoneInfoApp.efi
+      SECTION UI = "NokiaPhoneInfoApp"
+  }
+
+[FV.FVMAIN_COMPACT]
+FvAlignment        = 8
+ERASE_POLARITY     = 1
+MEMORY_MAPPED      = TRUE
+STICKY_WRITE       = TRUE
+LOCK_CAP           = TRUE
+LOCK_STATUS        = TRUE
+WRITE_DISABLED_CAP = TRUE
+WRITE_ENABLED_CAP  = TRUE
+WRITE_STATUS       = TRUE
+WRITE_LOCK_CAP     = TRUE
+WRITE_LOCK_STATUS  = TRUE
+READ_DISABLED_CAP  = TRUE
+READ_ENABLED_CAP   = TRUE
+READ_STATUS        = TRUE
+READ_LOCK_CAP      = TRUE
+READ_LOCK_STATUS   = TRUE
+
+  INF ArmPlatformPkg/PrePi/PeiUniCore.inf
+
+  FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
+    SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {
+      SECTION FV_IMAGE = FVMAIN
+    }
+  }
+
+!include SamsungS8Pkg/CommonFdf.fdf.inc
