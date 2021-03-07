@@ -85,27 +85,13 @@ READ_LOCK_STATUS   = TRUE
 	INF EmbeddedPkg\Library\PrePiLib\PrePiLib.inf
 	INF MdePkg\Library\BaseMemoryLib\BaseMemoryLib.inf
 	INF MdeModulePkg\Library\PeiPerformanceLib\PeiPerformanceLib.inf
-	INF MdePkg\Library\BaseIoLibIntrinsic\IoLibArm.inf
-	INF ArmPkg\Library\ArmLib\ArmV7\ArmV7Mmu.inf
-	INF MdePkg\Library\BaseLib\SwitchStack.inf
-	INF MdePkg\Library\BaseLib\RShiftU64.inf
-	INF MdePkg\Library\BaseLib\DivU64x32Remainder.inf
-	INF MdePkg\Library\BaseLib\String.inf
-	INF MdePkg\Library\BaseLib\Arm\Unaligned.inf
+	INF ArmPkg\Library\ArmLib\ArmBaseLib.inf
+	INF MdePkg\Library\BaseLib\BaseLib.inf
 	INF EmbeddedPkg\Library\PrePiExtractGuidedSectionLib\PrePiExtractGuidedSectionLib.inf
-	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\LzmaDecompress.inf
-	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\GuidedSectionExtraction.inf
-	INF EmbeddedPkg\Library\PrePiMemoryAllocationLib\MemoryAllocationLib.inf
-
-    FILE APPLICATION = FAB3CBF8-C26D-42CD-B265-86D8E231C9B1 {
-      SECTION PE32 = S3030Pkg/Binary/NokiaFlashApp.efi
-      SECTION UI = "NokiaFlashApp"
-  }
-
-    FILE APPLICATION = F40BEFE6-3BDF-4FEB-9A5B-2535BB00854E {
-      SECTION PE32 = S3030Pkg/Binary/NokiaPhoneInfoApp.efi
-      SECTION UI = "NokiaPhoneInfoApp"
-  }
+	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\LzmaCustomDecompressLib.inf
+	INF IntelFrameworkModulePkg\Library\LzmaCustomDecompressLib\LzmaArchCustomDecompressLib.inf
+	INF EmbeddedPkg\Library\PrePiMemoryAllocationLib\PrePiMemoryAllocationLib.inf
+    }
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8
@@ -125,12 +111,8 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
-  INF ArmPlatformPkg/PrePi/PeiUniCore.inf
-
   FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
     SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {
       SECTION FV_IMAGE = FVMAIN
     }
   }
-
-!include SamsungS8Pkg/CommonFdf.fdf.inc
